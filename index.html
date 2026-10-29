@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tic Tac Toe - Minimalist Pink</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap');
+
+        :root {
+            /* Tema Default: Soft Elegance */
+            --bg-color: #fcf8f9;
+            --card-bg: #ffffff;
+            --primary-text: #4a2e35;
+            --secondary-text: #8c7379;
+            --accent-color: #d47a8f;
+            --accent-hover: #c2637a;
+            --border-color: #f2e3e6;
+            --cell-bg: #faf3f5;
+            --cell-hover: #f5e8eb;
+            --shadow: 0 12px 32px rgba(180, 120, 135, 0.08);
+            --x-color: #d47a8f;
+            --o-color: #a88bb2;
+            --font-family: 'Plus Jakarta Sans', sans-serif;
+        }
+
+        /* Mode Tema: Neon Minimal */
+        [data-theme="neon"] {
+            --bg-color: #161118;
+            --card-bg: #211924;
+            --primary-text: #fce8ef;
+            --secondary-text: #a8929c;
+            --accent-color: #e65c8a;
+            --accent-hover: #f0709b;
+            --border-color: #382a3d;
+            --cell-bg: #2b202e;
+            --cell-hover: #36293a;
+            --shadow: 0 12px 32px rgba(0, 0, 0, 0.4);
+            --x-color: #e65c8a;
+            --o-color: #8fa3e6;
+        }
+
+        /* Mode Tema: Rose Gold Classic */
+        [data-theme="rosegold"] {
+            --bg-color: #f7f3f2;
+            --card-bg: #ffffff;
+            --primary-text: #3d3133;
+            --secondary-text: #857578;
+            --accent-color: #b87383;
+            --accent-hover: #a35f6f;
+            --border-color: #ebdcdb;
+            --cell-bg: #f5eceb;
+            --cell-hover: #ebe0de;
+            --shadow: 0 12px 32px rgba(184, 115, 131, 0.1);
+            --x-color: #b87383;
+            --o-color: #9e8293;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            transition: background-color 0.25s ease, color 0.25s ease, border-color 0.25s ease, transform 0.2s ease;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--primary-text);
+            font-family: var(--font-family);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 24px;
+        }
+
+        .game-card {
+            background-color: var(--card-bg);
+            padding: 40px;
+            border-radius: 28px;
+            border: 1px solid var(--border-color);
+            box-shadow: var(--shadow);
+            width: 100%;
+            max-width: 400px;
+            text-align: center;
+        }
+
+        .header {
+            margin-bottom: 24px;
+        }
+
+        h1 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            letter-spacing: -0.02em;
+            margin-bottom: 4px;
+            color: var(--primary-text);
+        }
+
+        .subtitle {
+            font-size: 0.85rem;
+            color: var(--secondary-text);
+            font-weight: 500;
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+        }
+
+        /* Controls / Selects */
+        .controls {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-bottom: 24px;
+        }
+
+        .select-wrapper {
+            position: relative;
+        }
+
+        select {
+            width: 100%;
+            padding: 10px 14px;
+            border-radius: 12px;
+            border: 1px solid var(--border-color);
+            background-color: var(--cell-bg);
+            color: var(--primary-text);
+            font-family: var(--font-family);
+            font-size: 0.85rem;
+            font-weight: 600;
+            outline: none;
+            cursor: pointer;
+            appearance: none;
+            -webkit-appearance: none;
+        }
+
+        select:focus {
+            border-color: var(--accent-color);
+        }
+
+        /* Arrow Dropdown Custom */
+        .select-wrapper::after {
+            content: '▾';
+            position: absolute;
+            right: 14px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 0.8rem;
+            color: var(--secondary-text);
+            pointer-events: none;
+        }
+
+        /* Scoreboard */
+        .scoreboard {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            background-color: var(--cell-bg);
+            border: 1px solid var(--border-color);
+            padding: 14px 8px;
+            border-radius: 16px;
+            margin-bottom: 24px;
+        }
+
+        .score-box {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .score-title {
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            font-weight: 600;
+            color: var(--secondary-text);
+        }
+
+        .score-num {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: var(--primary-text);
+        }
+
+        /* Status Display */
+        .status-display {
+            font-size: 0.95rem;
+            font-weight: 600;
+            color: var(--primary-text);
+            margin-bottom: 20px;
+            height: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* Board Container */
+        .board-wrapper {
+            position: relative;
+            width: 100%;
+            aspect-ratio: 1 / 1;
+            margin-bottom: 28px;
+        }
+
+        .board {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            grid-template-rows: repeat(3, 1fr);
+            gap: 12px;
+            width: 100%;
+            height: 100%;
+        }
+
+        .cell {
+            background-color: var(--cell-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 18px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 2.2rem;
+            font-weight: 700;
+            cursor: pointer;
+            user-select: none;
+        }
+
+        .cell:hover {
+            background-color: var(--cell-hover);
+            transform: translateY(-2px);
+        }
+
+        .cell.x {
+            color: var(--x-color);
+        }
+
+        .cell.o {
+            color: var(--o-color);
+        }
+
+        /* Canvas Line */
+        #winning-canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+        }
+
+        /* Action Button */
+        .btn-action {
+            width: 100%;
+            background-color: var(--accent-color);
+            color: #ffffff;
+            border: none;
+            padding: 14px 20px;
+            border-radius: 14px;
+            font-family: var(--font-family);
+            font-size: 0.9rem;
+            font-weight: 600;
+            letter-spacing: 0.02em;
+            cursor: pointer;
+        }
+
+        .btn-action:hover {
+            background-color: var(--accent-hover);
+            transform: translateY(-1px);
+        }
+
+        .btn-action:active {
+            transform: translateY(0);
+        }
+    </style>
+</head>
+<body>
+
+    <div class="game-card">
+        <div class="header">
+            <h1>Tic Tac Toe</h1>
+            <div class="subtitle">Pink Palette</div>
+        </div>
+
+        <div class="controls">
+            <div class="select-wrapper">
+                <select id="modeSelect">
+                    <option value="pvp">2 Pemain</option>
+                    <option value="ai">Versus Komputer</option>
+                </select>
+            </div>
+            <div class="select-wrapper">
+                <select id="themeSelect">
+                    <option value="pastel">Soft Elegance</option>
+                    <option value="neon">Neon Minimal</option>
+                    <option value="rosegold">Rose Gold</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="scoreboard">
+            <div class="score-box">
+                <span class="score-title">Pemain X</span>
+                <span class="score-num" id="scoreX">0</span>
+            </div>
+            <div class="score-box">
+                <span class="score-title">Seri</span>
+                <span class="score-num" id="scoreDraw">0</span>
+            </div>
+            <div class="score-box">
+                <span class="score-title" id="oTitle">Pemain O</span>
+                <span class="score-num" id="scoreO">0</span>
+            </div>
+        </div>
+
+        <div class="status-display" id="statusText">Giliran Pemain X</div>
+
+        <div class="board-wrapper">
+            <div class="board" id="board">
+                <div class="cell" data-index="0"></div>
+                <div class="cell" data-index="1"></div>
+                <div class="cell" data-index="2"></div>
+                <div class="cell" data-index="3"></div>
+                <div class="cell" data-index="4"></div>
+                <div class="cell" data-index="5"></div>
+                <div class="cell" data-index="6"></div>
+                <div class="cell" data-index="7"></div>
+                <div class="cell" data-index="8"></div>
+            </div>
+            <canvas id="winning-canvas"></canvas>
+        </div>
+
+        <button class="btn-action" id="resetBtn">Ronde Baru</button>
+    </div>
+
+    <!-- Menghubungkan ke file JavaScript eksternal -->
+    <script src="script.js"></script>
+</body>
+</html>
